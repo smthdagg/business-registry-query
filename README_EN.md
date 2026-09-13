@@ -6,6 +6,8 @@
 
 One search queries four sources in parallel, merges and deduplicates the results automatically, and annotates every field with its origin. The UI and data structures are modeled after Tianyancha: clickable search results, sectioned company profiles, boss search that precisely disambiguates people with the same name, and a relation graph covering legal representatives, shareholders, executives, investments and branches.
 
+![Home — aggregated search](docs/screenshot-home.png)
+
 ---
 
 ## Table of Contents
