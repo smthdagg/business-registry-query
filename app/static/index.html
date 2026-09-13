@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工商企业聚合信息查询系统</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- 登录遮罩 -->
+<div id="login-mask" class="login-mask hidden">
+  <form id="login-form" class="login-card">
+    <h1>工商企业聚合信息查询系统</h1>
+    <p class="login-sub">个人自用 · 请输入访问口令</p>
+    <input id="login-user" value="admin" placeholder="用户名" autocomplete="username">
+    <input type="password" id="login-pass" placeholder="访问口令" autocomplete="current-password">
+    <button type="submit" class="btn btn-primary btn-block">登 录</button>
+    <p id="login-err" class="login-err"></p>
+    <p class="login-sub" style="margin-top:10px">首次使用：admin 账号密码取自 .env 的 ADMIN_PASSWORD</p>
+  </form>
+</div>
+
+<header class="topbar">
+  <a class="brand" href="#/search">🏛 工商企业聚合信息查询系统</a>
+  <div class="top-actions">
+    <span id="role-badge" class="src-note"></span>
+    <button id="logout-btn" class="btn btn-ghost hidden">退出登录</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <a class="tab-btn" data-nav="search" href="#/search">快速查询</a>
+  <a class="tab-btn" data-nav="relation" href="#/relation">关联图谱</a>
+  <a class="tab-btn" data-nav="batch" href="#/batch">批量查询</a>
+  <a class="tab-btn" data-nav="tasks" href="#/tasks">任务中心</a>
+  <a class="tab-btn" data-nav="watchlist" href="#/watchlist">监控名单</a>
+  <a class="tab-btn" data-nav="settings" href="#/settings" id="nav-settings">设置</a>
+</nav>
+
+<main id="app"></main>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="/static/js/graph.js"></script>
+<script src="/static/js/main.js"></script>
+</body>
+</html>

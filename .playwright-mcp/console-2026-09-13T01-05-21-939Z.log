@@ -1,0 +1,14 @@
+[ 9234594ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://www.riskbird.com/search?searchKey=%E8%8B%8F%E8%83%9C:0
+[ 9234660ms] [ERROR] [nuxt] error caught during app initialization bs: Page not found: /search?searchKey=%E8%8B%8F%E8%83%9C
+    at Ts (https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:19:65841)
+    at https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:27:498526
+    at r (https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:19:40699)
+    at Object.runWithContext (https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:15:16767)
+    at V_ (https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:19:40729)
+    at Object.runWithContext (https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:19:39376)
+    at https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:27:498504
+    at https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:27:16516
+    at Object.runWithContext (https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:15:16767)
+    at x (https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:27:15614) @ https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:18
+[ 9310421ms] [ERROR] Hydration completed but contains mismatches. @ https://m2.riskbird.com/web/riskbird/prod/_nuxt/entry.86c0f0ae.js:12
+[ 9310472ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.riskbird.com/riskbird-api/user/point/overview:0

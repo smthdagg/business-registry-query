@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+data/
+.env
+.pytest_cache/
+.DS_Store
+*.egg-info/
+dist/
+
+# 本地部署备忘（含服务器 IP/口令，禁止发布）
+DEPLOY.md
+*.db
+*.db-wal
+*.db-shm
+secret.key
+nohup.out
