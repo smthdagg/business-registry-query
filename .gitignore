@@ -15,3 +15,5 @@ DEPLOY.md
 *.db-shm
 secret.key
 nohup.out
+.playwright-mcp/
+*.zip
