@@ -19,7 +19,6 @@ import requests
 
 from .. import config
 from ..utils import clean_text, join_list, phones_equal
-from .cookies import cookie_for
 from .base import BaseSource, SourceError
 
 # 与原 py 文件完全一致的请求头（UA 为脚本原值）
@@ -104,22 +103,13 @@ class TianyanchaSource(BaseSource):
     cacheable = True
 
     def __init__(self) -> None:
-        self._session = requests.Session()
-        self._session.headers.update(dict(_HEADERS))
-        self._refresh_cookie()
-
-    def _refresh_cookie(self) -> None:
-        ck = cookie_for("tyc")
-        if ck:
-            self._session.headers["Cookie"] = ck
-        else:
-            self._session.headers.pop("Cookie", None)
+        self.init_session(_HEADERS)
 
     # -- 请求 --------------------------------------------------------------
 
     def search(self, keyword: str, angle: str = "综合", limit: int = 20,
                region_id: str = "") -> list[dict]:
-        self._refresh_cookie()
+        self.refresh_cookie()
         if angle not in self.angles:
             angle = "综合"
         last_error: Exception | None = None

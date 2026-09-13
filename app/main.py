@@ -23,7 +23,10 @@ async def lifespan(_app: FastAPI):
     if moved:
         print(f"[init] 已从旧存储迁移 {moved} 份 Cookie 到 {cookie_svc._file()}")
     worker.start()
+    from .browser import keepalive
+    keepalive.start()
     yield
+    keepalive.stop()
     worker.stop()
 
 

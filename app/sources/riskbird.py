@@ -17,7 +17,6 @@ import requests
 
 from .. import config
 from ..utils import clean_text, extract_city, is_person_name, join_list
-from .cookies import cookie_for
 from .base import BaseSource, SourceError
 
 _BASE = "https://www.riskbird.com"
@@ -73,19 +72,8 @@ class RiskbirdSource(BaseSource):
     cacheable = True
 
     def __init__(self) -> None:
-        self._session = requests.Session()
-        self._session.headers.update(dict(_HEADERS))
-        self._bootstrapped = False
+        self._bootstrapped = bool(self.init_session(_HEADERS))
         self._last_meta: dict = {}
-        self._refresh_cookie()
-
-    def _refresh_cookie(self) -> None:
-        ck = cookie_for("rb")
-        if ck:
-            self._session.headers["Cookie"] = ck
-            self._bootstrapped = True
-        else:
-            self._session.headers.pop("Cookie", None)
 
     def last_meta(self) -> dict:
         return self._last_meta
@@ -103,7 +91,7 @@ class RiskbirdSource(BaseSource):
 
     def search(self, keyword: str, angle: str = "综合", limit: int = 20,
                region_id: str = "") -> list[dict]:
-        self._refresh_cookie()
+        self._bootstrapped = bool(self.refresh_cookie())
         kw = clean_text(keyword)
         if not kw:
             return []

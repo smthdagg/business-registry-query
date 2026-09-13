@@ -6,16 +6,14 @@
   平台 Set-Cookie 续期后自动回写 cookies.json（供 HTTP 通道共用）；
 - 页面内 fetch：在平台页面上下文执行同源请求（自动带登录态/指纹/canary），
   这是绕过风控拿到全量数据的通道；
-- 登录失效检测：命中登录页/游客限额 → 状态标记“需登录”，
-  用户可用 `open_login` 打开有头窗口重新登录一次（之后长期有效）。
+- 登录失效检测：命中登录页/游客限额 → 日志打印“需登录”，更新 Cookie 后自动恢复。
 
 所有浏览器操作通过内部锁串行化；本模块线程安全。
 """
 
 import json
 import threading
-import time
-from typing import Any, Optional
+from typing import Any
 
 from .. import config
 from ..sources import cookies as cookie_svc
@@ -37,8 +35,6 @@ _lock = threading.RLock()
 _browser = None            # camoufox browser 实例
 _context = None            # 持久 context（cookie 所在）
 _pages: dict[str, Any] = {}   # platform -> page（每平台一个常驻 tab）
-_last_used = 0.0
-_status: dict[str, str] = {}  # platform -> ok | need-login | error: ...
 Unavailable = ("camoufox 未安装或启动失败")
 
 
@@ -52,15 +48,6 @@ def available() -> bool:
 
 def enabled() -> bool:
     return config.BROWSER_FALLBACK and available()
-
-
-def status() -> dict:
-    return {
-        "installed": available(),
-        "enabled": config.BROWSER_FALLBACK,
-        "running": _browser is not None,
-        "platforms": dict(_status),
-    }
 
 
 def _new_browser():
@@ -144,10 +131,8 @@ def _page_fetch(platform: str, path: str, payload: dict | None = None,
 
 def fetch_api(platform: str, path: str, payload: dict | None = None,
               method: str = "POST") -> dict:
-    """对外入口：带锁 + 超时保护的页面内 API 调用。失败时抛 RuntimeError。"""
+    """对外入口：带锁的页面内 API 调用。失败时抛 RuntimeError。"""
     with _lock:
-        global _last_used
-        _last_used = time.time()
         page = _page_for(platform)
         origin = _PLATFORM_ORIGIN[platform]
         if not page.url.startswith(origin):
@@ -181,62 +166,3 @@ def _export_cookies(platform: str) -> None:
         cookie_svc.save_cookie(platform, "; ".join(parts))
     except Exception:
         pass
-
-
-def open_login(platform: str) -> bool:
-    """打开有头浏览器窗口让用户手动登录（阻塞至窗口关闭），随后回写 cookie。"""
-    global _browser, _context
-    if platform not in _PLATFORM_HOME:
-        raise ValueError(f"未知平台：{platform}")
-    from camoufox.sync_api import Camoufox
-    with _lock:
-        stop()
-    kwargs = {"headless": False, "humanize": True}
-    cm = Camoufox(**kwargs)
-    browser = cm.__enter__()
-    try:
-        ctx = browser.new_context()
-        page = ctx.new_page()
-        page.goto(_PLATFORM_HOME[platform], timeout=60000, wait_until="domcontentloaded")
-        # 等用户登录完成：轮询 url/cookie 变化，最长 5 分钟
-        deadline = time.time() + 300
-        while time.time() < deadline:
-            time.sleep(3)
-            try:
-                if "/login" not in page.url and "passport" not in page.url:
-                    break
-            except Exception:
-                break
-        cookies = ctx.cookies()
-        parts = [f"{c['name']}={c['value']}" for c in cookies if c.get("value")]
-        if parts:
-            cookie_svc.save_cookie(platform, "; ".join(parts))
-        return bool(parts)
-    finally:
-        try:
-            browser.close()
-        except Exception:
-            pass
-
-
-def stop() -> None:
-    global _browser, _context, _pages
-    with _lock:
-        for p in _pages.values():
-            try:
-                p.close()
-            except Exception:
-                pass
-        _pages = {}
-        if _context:
-            try:
-                _context.close()
-            except Exception:
-                pass
-        _context = None
-        if _browser:
-            try:
-                _browser.close()
-            except Exception:
-                pass
-        _browser = None

@@ -4,7 +4,10 @@
 上层服务（搜索/批量/关联/导出）只依赖这一套键，与具体数据源解耦。
 """
 
+import requests
 from abc import ABC, abstractmethod
+
+from .cookies import cookie_for
 
 # 展示顺序 + 中文标签（详情弹窗 / 导出表头共用）
 FIELD_META: list[tuple[str, str]] = [
@@ -91,6 +94,21 @@ class BaseSource(ABC):
 
         region_id：省级行政区代码（如 340000=安徽省），仅部分源/角度支持。"""
         raise NotImplementedError
+
+    def init_session(self, headers: dict) -> str:
+        """子类 __init__ 调用：创建会话、注入平台请求头与 Cookie；返回 Cookie 串（可为空）。"""
+        self._session = requests.Session()
+        self._session.headers.update(dict(headers))
+        return self.refresh_cookie()
+
+    def refresh_cookie(self) -> str:
+        """把 cookies.json（env 兜底）的最新 Cookie 刷进会话头；返回空串表示未配置。"""
+        ck = cookie_for(self.id)
+        if ck:
+            self._session.headers["Cookie"] = ck
+        else:
+            self._session.headers.pop("Cookie", None)
+        return ck
 
     def meta(self) -> dict:
         return {
