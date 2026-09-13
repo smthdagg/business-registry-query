@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run tests
+        run: python -m pytest tests/ -q
+      - name: Secret scan (fail on cookies/passwords in tracked files)
+        run: |
+          ! grep -rInE "(RB_COOKIE|TYC_COOKIE|AQC_COOKIE|CHA88_COOKIE)=[A-Za-z0-9]" --include="*.py" --include="*.js" --include="*.md" --include="*.yml" . \
+            || { echo "::error::cookie-like secret found in tracked file"; exit 1; }
