@@ -100,7 +100,9 @@ class AiqichaSource(BaseSource):
 
     # ---------------- 搜索 ----------------
 
-    def search(self, keyword: str, angle: str = "综合", limit: int = 20) -> list[dict]:
+    def search(self, keyword: str, angle: str = "综合", limit: int = 20,
+               region_id: str = "") -> list[dict]:
+        # aqc 无省份筛选能力，region_id 仅保持签名兼容（聚合层统一传参）
         self._bootstrapped = bool(self.refresh_cookie())
         kw = clean_text(keyword)
         if not kw:
