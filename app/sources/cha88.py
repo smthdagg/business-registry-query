@@ -158,7 +158,7 @@ class Cha88Source(BaseSource):
 
     # ---------------- 搜索 ----------------
 
-    MAX_PAGES = 5   # 单次查询最多翻 5 页（20 条/页），防止滥用
+    MAX_PAGES = 25  # 单次查询最多翻 25 页（20 条/页 = 500 条），防止滥用
 
     def search(self, keyword: str, angle: str = "综合", limit: int = 20,
                region_id: str = "") -> list[dict]:
@@ -166,7 +166,7 @@ class Cha88Source(BaseSource):
         kw = clean_text(keyword)
         if not kw:
             return []
-        want = max(1, min(int(limit), 100))
+        want = max(1, min(int(limit), 1000))
         records: list[dict] = []
         page = 1
         total = 0
@@ -188,7 +188,8 @@ class Cha88Source(BaseSource):
             if len(records) >= want:
                 break
             page += 1
-        self._last_meta = {"total": total}
+        # 填满条数预算即视为可能还有更多
+        self._last_meta = {"total": total, "truncated": len(records) >= want}
         return records[:want]
 
     @classmethod

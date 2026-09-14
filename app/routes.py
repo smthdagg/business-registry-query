@@ -68,7 +68,7 @@ class SearchBody(BaseModel):
     keyword: str
     angle: str = "综合"
     source: str | None = None
-    limit: int = Field(default=20, ge=1, le=150)
+    limit: int = Field(default=20, ge=1, le=1000)
     person: str | None = None
     region_id: str = ""
 

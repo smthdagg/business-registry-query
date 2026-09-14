@@ -142,6 +142,7 @@ def do_search(
             "elapsed": p.get("elapsed"),
         })
     totals = [p.get("total") or 0 for p in per_source.values()]
+    truncated = any(p.get("truncated") for p in per_source.values())
     if history:
         db.add_history(AGG_ID, angle, kw, bool(rows), len(rows))
 
@@ -152,6 +153,7 @@ def do_search(
         "keyword": kw,
         "count": len(rows),
         "total": max(totals) if totals else None,
+        "truncated": truncated,
         "results": rows,
         "sourcesDetail": detail,
     }

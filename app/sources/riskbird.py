@@ -121,7 +121,7 @@ class RiskbirdSource(BaseSource):
         if angle == "法人":
             return self._search_person_angle(kw, limit, region_id)
 
-        want = max(1, min(int(limit), 120))
+        want = max(1, min(int(limit), 1000))
         records: list[dict] = []
         # 综合角度：附带同名人员分组（风鸟“查老板”），人员排前——与网页综合搜索一致
         if angle == "综合":
@@ -138,10 +138,11 @@ class RiskbirdSource(BaseSource):
 
         page = 1
         total = 0
-        while page <= 12 and len(records) < want:
+        while page <= 100 and len(records) < want:
             payload = {
                 "searchKey": kw,
                 "pageNo": str(page),
+                # 服务端实际固定 10 条/页，range 参数被忽略；保留以兼容
                 "range": "20",
                 "referer": "search",
                 "queryType": "1",
@@ -161,7 +162,8 @@ class RiskbirdSource(BaseSource):
             if len(records) >= want:
                 break
             page += 1
-        self._last_meta = {"total": total}
+        # 填满条数预算即视为可能还有更多（接口已不返回 totalCount，无法精确判断）
+        self._last_meta = {"total": total, "truncated": len(records) >= want}
         return records[:want]
 
     @staticmethod

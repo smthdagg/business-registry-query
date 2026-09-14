@@ -151,7 +151,7 @@ def _run_batch(task_id: int, params: dict) -> None:
         if source is not None and angle not in valid_angles:
             angle = "综合"
 
-        outcome = aggregate.do_search(source_id, angle, kw, limit=50, cache=True)
+        outcome = aggregate.do_search(source_id, angle, kw, limit=100, cache=True)
         if outcome["ok"]:
             consec_errors = 0
             records = outcome["results"]

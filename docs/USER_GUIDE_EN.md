@@ -23,7 +23,7 @@ If `ADMIN_PASSWORD` or `MEMBER_PASSWORD` was set at deploy time, a login mask ap
 ### 2.1 Running a search
 
 1. The search box accepts: **company name / legal-rep name / unified social credit code / registration number / phone**.
-2. Pick an angle:
+2. Pick an angle and a **result cap** (100/300/600/1000) — deeper caps mean more pagination and longer waits; when the page says the cap was reached, raise it and search again:
 
 | Angle | Sources used | Notes |
 |---|---|---|

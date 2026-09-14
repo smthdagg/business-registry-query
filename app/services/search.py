@@ -32,7 +32,7 @@ def do_search(
     if not kw:
         return {"ok": False, "error": "关键词不能为空", "results": []}
 
-    cache_key = f"{source.id}|{angle_used}|{kw}|p:{person or ''}|r:{region_id}|l:{min(limit, 120)}"
+    cache_key = f"{source.id}|{angle_used}|{kw}|p:{person or ''}|r:{region_id}|l:{min(limit, 1000)}"
     cached: list | None = None
     if cache and source.cacheable:
         cached = db.cache_get(cache_key)
@@ -82,6 +82,7 @@ def do_search(
         "keyword": kw,
         "count": len(records),
         "total": total or None,
+        "truncated": bool(meta.get("truncated")) if isinstance(meta, dict) else False,
         "results": records,
         "cached": False,
     }

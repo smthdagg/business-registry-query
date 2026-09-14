@@ -371,6 +371,9 @@
         <form id="search-form" class="hero-search form-row">
           <input id="q" class="input grow" placeholder="企业名 / 法人 / 信用代码 / 电话…" autocomplete="off">
           <select id="angle" class="select w140">${angles.map((a) => `<option value="${a}">${a}</option>`).join("")}</select>
+          <select id="limit" class="select w120" title="本次查询返回的条数上限（越大越慢）">
+            ${[100, 300, 600, 1000].map((n) => `<option value="${n}"${n === 300 ? " selected" : ""}>${n} 条</option>`).join("")}
+          </select>
           <button class="btn btn-primary btn-lg" type="submit">查 询</button>
         </form>
         <div class="quick-cats">
@@ -450,7 +453,7 @@
     try {
       const res = await api("/api/search", {
         method: "POST",
-        body: { keyword: kw, angle: $("#angle").value, source: state.cfg.currentSource, limit: 100 },
+        body: { keyword: kw, angle: $("#angle").value, source: state.cfg.currentSource, limit: Number($("#limit")?.value) || 300 },
       });
       renderSearchResult(res);
     } catch (e) {
@@ -522,7 +525,7 @@
       </div></td></tr>`;
     }).join("");
     box.innerHTML = `<div class="card">
-      <div class="meta-line">数据源 <b>${esc(srcLabel)}</b> · 角度 <b>${esc(res.angle || "综合")}</b> · 合并命中 <b>${records.length}</b> 条 ${limitNote}${cached}</div>
+      <div class="meta-line">数据源 <b>${esc(srcLabel)}</b> · 角度 <b>${esc(res.angle || "综合")}</b> · 合并命中 <b>${records.length}</b> 条 ${limitNote}${cached}${res.truncated ? '<span class="tag-queued">已达条数上限，可在搜索框旁调大</span>' : ""}</div>
       ${aggChips}
       <div class="filter-bar" id="filter-bar">
         <select id="f-province" class="select w140"><option value="">全部省份</option></select>
