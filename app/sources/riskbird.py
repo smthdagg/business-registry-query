@@ -468,6 +468,19 @@ class RiskbirdSource(BaseSource):
         except ValueError:
             raise SourceError("风鸟返回非 JSON（登录态失效，请更新 RB_COOKIE）") from None
 
+    def legal_person_pid(self, company_name: str) -> str | None:
+        """按企业名查现任法定代表人的 personId（查不到返回 None）。
+
+        用于同名人员复核：天眼查按姓名匹配的法人结果必须对照
+        风鸟 personId，排除同名不同人。"""
+        rows = self.search(company_name, "企业名", limit=3)
+        hit = next((r for r in rows if (r.get("name") or "") == company_name), None)
+        if not hit or not hit.get("_pid"):
+            return None
+        detail = self._get("/api/ent/query", {"entId": hit["_pid"]}) or {}
+        jb = (((detail.get("basicResult") or {}).get("apiData") or {}).get("list") or {}).get("jbxxInfo") or {}
+        return clean_text(jb.get("personId")) or None
+
     def person_companies(self, person_id: str, limit: int = 20) -> list[dict]:
         """该人员任法代/高管/股东的全部企业（风鸟口径，含职务）。"""
         order_no = self._person_order_no(person_id)

@@ -156,7 +156,10 @@ class PersonCompaniesBody(BaseModel):
 
 @protected.post("/person-companies")
 def person_companies(body: PersonCompaniesBody) -> dict:
-    """人员关联企业：合并风鸟精确（personId，含职务）与天眼查法定代表人口径，去重。"""
+    """人员关联企业：合并风鸟精确（personId，含职务）与天眼查法定代表人口径，去重。
+
+    天眼查按姓名匹配必然混入同名不同人：携带精确 personId 时，
+    每条天眼查候选都用风鸟企业详情复核现任法人 personId，对不上的一律不合并。"""
     combined: list[dict] = []
     seen: set[str] = set()
     used_rb = False
@@ -180,9 +183,20 @@ def person_companies(body: PersonCompaniesBody) -> dict:
 
     res = aggregate.do_search(None, "法人", body.name, limit=30, person=body.name)
     for r in res.get("results") or []:
+        if r.get("type") == "person":
+            continue  # 人员条目不是企业，防止同名本人混进公司表
         key = (r.get("name") or "").lower()
         if not key or key in seen:
             continue
+        if body.pid:
+            rb = sources.get_source("rb")
+            try:
+                wait_interval(rb)
+                legal_pid = rb.legal_person_pid(r["name"])
+            except Exception:
+                legal_pid = None
+            if legal_pid != body.pid:
+                continue  # 同名不同人（或无法核验），不合并
         seen.add(key)
         r["sources"] = list(r.get("sources") or [])
         if not r.get("role"):

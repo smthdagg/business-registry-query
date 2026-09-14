@@ -887,7 +887,7 @@
           return;
         }
         const srcChips = (data.source === "merged" || data.source === "rb")
-          ? '<span class="stats-chip">风鸟 精确匹配</span>' : '<span class="stats-chip">天眼查口径</span>';
+          ? '<span class="stats-chip">风鸟 精确匹配（同名已核验）</span>' : '<span class="stats-chip">天眼查口径</span>';
         app(`<div class="card company-head"><h2>👤 ${esc(name)}</h2>
           <div class="head-meta">名下企业 <b>${records.length}</b> 家 ${srcChips}</div>
           <div class="task-actions" style="margin-top:8px">
